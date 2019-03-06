@@ -1,0 +1,107 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "scanner.h"
+#include "treeForm.h"
+
+int acceptCharacterr(List *lp, char c) {
+  if (*lp != NULL && (*lp)->tt == Symbol && ((*lp)->t).symbol == c ) {
+    *lp = (*lp)->next;
+    return 1;
+  }
+  return 0;
+}
+
+char acceptString(char *ar, int ip, List *lp) { //need to do acceptcharacter but for string, i have not found a function for this
+ 
+  char *s = malloc(2*sizeof(char));
+  char s = ar[*ip];
+  (*ip)++;
+  s=
+}
+
+int treeOr(List *lp, FormTree *t) {
+  if ( !treeFormula(lp,t) ) {
+    return 0;
+  }
+  while ( acceptCharacterr(lp,'|') ) {
+    FormTree tL = *t;
+    FormTree tR = NULL;
+    if ( !treeFormula(lp,&tR) ) {
+      freeTree(tR);
+      return 0;
+    }
+    Token tok;
+    tok.symbol = '|';
+    *t = newFormTreeNode(Symbol, tok, tL, tR);
+  } /* no '&', so we reached the end of conjunction */
+  return 1;
+}
+
+int treeImplication(List *lp, FormTree *t) {
+  if ( !treeOr(lp,t) ) {
+    return 0;
+  }
+  if ( matchCharacterr(lp,'->') ) {
+    FormTree tL = *t;
+    FormTree tR = NULL;
+    if ( !treeOrlp,&tR) ) {
+      freeTree(tR);
+      return 0;
+    }
+    Token tok;
+    tok.symbol = '->';
+    *t = newFormTreeNode(Symbol, tok, tL, tR);
+  } /* no '&', so we reached the end of conjunction */
+  return 1;
+}
+
+int treeBiconditional(List *lp, FormTree *t) {
+  if ( !treeOr(lp,t) ) {
+    return 0;
+  }
+  if ( matchCharacterr(lp,'<->') ) {
+    FormTree tL = *t;
+    FormTree tR = NULL;
+    if ( !treeImplicationlp,&tR) ) {
+      freeTree(tR);
+      return 0;
+    }
+    Token tok;
+    tok.symbol = '<->';
+    *t = newFormTreeNode(Symbol, tok, tL, tR);
+  } /* no '&', so we reached the end of conjunction */
+  return 1;
+}
+
+int main(int argc, char *argv[]) {
+  char *ar;
+  List tl, tl1;
+  tl1 = NULL;
+  printf("give a formula: ");
+  ar = readInput();
+  while (ar[0] != '!') {
+    tl = tokenList(ar);
+    printList(tl);
+    tl1 = tl;
+    FormTree t = NULL;
+    if ( treeOr(&tl1,&t) && tl1 == NULL ) {
+      printf("with parentheses: ");
+      printTree(t);
+      printf("\n");
+      freeTree(t);
+    } else {
+      printf("this is not a formula\n");
+      if (t != NULL) {
+        freeTree(t);
+      }
+    }
+    free(ar);
+    freeTokenList(tl);
+    printf("\ngive a formula: ");
+    ar = readInput();
+  }
+  free(ar);
+  printf("good bye\n");
+  return 0;
+}
